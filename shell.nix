@@ -1,23 +1,17 @@
 { pkgs ? import <nixpkgs> {}}:
 
 # Set up to compile on nix-on-droid with Vulkan backend
-# Not everything required; forked from a shell.nix for building mesa turnip freedreno
+# Run:
+#   > nix-shell
+#   $ build-llama-cpp
+#   > ./build/bin/llama-cli -m ...
 
 with pkgs.lib;
 
-let
-  pythonPkgs = (ps: with ps; [
-    distutils
-    mako
-  ]);
-  pythonEnv = pkgs.python3.withPackages pythonPkgs;
-in pkgs.mkShell ({
+pkgs.mkShell ({
   nativeBuildInputs = with pkgs; [
       openblas
       pkg-config
-      meson
-      ninja
-      pythonEnv
       clang
       clang-tools
       llvmPackages_latest.llvm
@@ -41,16 +35,6 @@ in pkgs.mkShell ({
       byacc
       flex
       cmake
-      wayland-scanner
-      wayland-protocols
-      wayland
-      xorg.libX11
-      xorg.libxcb
-      xorg.libXext
-      xorg.libXfixes
-      xorg.libxshmfence
-      xorg.libXxf86vm
-      xorg.libXrandr
     ];
     shellHook = ''
       export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:~/.nix-profile/lib"

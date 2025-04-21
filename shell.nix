@@ -35,6 +35,7 @@ pkgs.mkShell ({
       byacc
       flex
       cmake
+      curl
     ];
     shellHook = ''
       export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:~/.nix-profile/lib"

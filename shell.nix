@@ -39,7 +39,7 @@ pkgs.mkShell ({
     shellHook = ''
       export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:~/.nix-profile/lib"
       export LIBCLANG_PATH="${pkgs.llvmPackages_latest.libclang}/lib";
-      alias configure-llama-cpp="cmake -B build -DGGML_VULKAN=ON -DGGML_CCACHE=OFF"
+      alias configure-llama-cpp="cmake -B build -DGGML_VULKAN=ON -DGGML_CCACHE=OFF -DGGML_BLAS_VENDOR=OpenBLAS"
       alias build-llama-cpp="configure-llama-cpp; cmake --build build --config Release"
     '';
   })

@@ -4,7 +4,9 @@
 
 #include "json-schema-to-grammar.h"
 
-#include "llama-grammar.h"
+#include "../src/llama-grammar.h"
+
+#include <nlohmann/json.hpp>
 
 #include <cassert>
 #include <fstream>
@@ -599,6 +601,22 @@ static void test_all(const std::string & lang, std::function<void(const TestCase
 
     test({
         SUCCESS,
+        "maxItems 0",
+        R"""({
+            "items": {
+                "type": "boolean"
+            },
+            "maxItems": 0
+        })""",
+        R"""(
+            boolean ::= ("true" | "false") space
+            root ::= "[" space  "]" space
+            space ::= | " " | "\n"{1,2} [ \t]{0,20}
+        )"""
+    });
+
+    test({
+        SUCCESS,
         "maxItems 1",
         R"""({
             "items": {
@@ -1187,6 +1205,51 @@ static void test_all(const std::string & lang, std::function<void(const TestCase
             integral-part ::= [0] | [1-9] [0-9]{0,15}
             number ::= ("-"? integral-part) ("." decimal-part)? ([eE] [-+]? integral-part)? space
             root ::= "{" space a-kv "," space b-kv ( "," space ( d-kv d-rest | c-kv ) )? "}" space
+            space ::= | " " | "\n"{1,2} [ \t]{0,20}
+        )"""
+    });
+
+    test({
+        SUCCESS,
+        "allOf with enum schema",
+        R"""({
+            "allOf": [
+                {"$ref": "#/definitions/foo"}
+            ],
+            "definitions": {
+                "foo": {
+                    "type": "string",
+                    "enum": ["a", "b"]
+                }
+            }
+        })""",
+        R"""(
+            root ::= ("\"a\"" | "\"b\"") space
+            space ::= | " " | "\n"{1,2} [ \t]{0,20}
+        )"""
+    });
+
+    test({
+        SUCCESS,
+        "allOf with multiple enum schemas",
+        R"""({
+            "allOf": [
+                {"$ref": "#/definitions/foo"},
+                {"$ref": "#/definitions/bar"}
+            ],
+            "definitions": {
+                "foo": {
+                    "type": "string",
+                    "enum": ["a", "b", "c"]
+                },
+                "bar": {
+                    "type": "string",
+                    "enum": ["b", "c", "d"]
+                }
+            }
+        })""",
+        R"""(
+            root ::= ("\"b\"" | "\"c\"") space
             space ::= | " " | "\n"{1,2} [ \t]{0,20}
         )"""
     });
